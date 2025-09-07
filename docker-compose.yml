@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  frontend1:
+    build: ./frontend1
+    container_name: frontend1
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend1
+    stdin_open: true
+    tty: true
+
+  backend1:
+    build: ./backend1
+    container_name: backend1
+    ports:
+      - "5000:5000"
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=mydb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    depends_on:
+      - db1
+
+  db1:
+    image: postgres:15
+    container_name: db1
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+    ports:
+      - "5126:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  db_data:
